@@ -1,0 +1,67 @@
+package main
+
+import (
+	"encoder/application/services"
+	"encoder/framework/database"
+	"encoder/framework/queue"
+	"log"
+	"os"
+	"strconv"
+
+	"github.com/joho/godotenv"
+	"github.com/streadway/amqp"
+)
+
+var db database.Database
+
+func init() {
+	log.Println("Loading environment variables...")
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("error loading .env file")
+	}
+
+	autoMigrateDb, err := strconv.ParseBool(os.Getenv("AUTO_MIGRATE_DB")) 
+	if err != nil {
+		log.Fatalf("error parsing boolean env variable: AUTO_MIGRATE_DB")
+	}
+
+	debug, err := strconv.ParseBool(os.Getenv("DEBUG")) 
+	if err != nil {
+		log.Fatalf("error parsing boolean env variable: DEBUG")
+	}
+
+	log.Println("Setting up database...")
+
+	db.AutoMigrateDb = autoMigrateDb
+	db.Debug = debug
+	db.DsnTest = os.Getenv("DSN_TEST")
+	db.Dsn = os.Getenv("DSN")
+	db.DbTypeTest = os.Getenv("DB_TYPE_TEST")
+	db.DbType = os.Getenv("DB_TYPE")
+	db.Env = os.Getenv("Env")
+}
+
+func main() {
+	messageChannel := make(chan amqp.Delivery)
+	JobReturnChannel :=make(chan services.JobWorkerResult)
+
+	log.Println("Creating database connection...")
+	dbConnection, err := db.Connect()
+
+	if err != nil {
+		log.Fatalf("error connecting to DB")
+	}
+	defer dbConnection.Close()
+
+	rabbitMQ := queue.NewRabbitMQ()
+	ch := rabbitMQ.Connect()
+	defer ch.Close()
+
+	log.Println("Consuming incoming messages...")
+	rabbitMQ.Consume(messageChannel)
+	
+	jobManager := services.NewJobManager(dbConnection, rabbitMQ, JobReturnChannel, messageChannel)
+	jobManager.Start(ch)
+}
