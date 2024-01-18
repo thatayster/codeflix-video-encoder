@@ -34,6 +34,12 @@ func TestJobRepositoryInsert(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, job.Id, j.Id)
 	require.Equal(t, j.VideoId, video.Id)
+
+	foundVideo, err := repo.Find(j.VideoId)
+
+	require.Nil(t, err)
+	require.Equal(t, video.Id, foundVideo.Id)
+	require.NotEmpty(t, foundVideo.Jobs)
 }
 
 func TestJobRepositoryUpdate(t *testing.T) {

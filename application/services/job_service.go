@@ -9,9 +9,9 @@ import (
 )
 
 type JobService struct {
-	Job *domain.Job
+	Job           *domain.Job
 	JobRepository repositories.JobRepository
-	VideoService VideoService
+	VideoService  VideoService
 }
 
 func (j *JobService) Start() error {
@@ -64,11 +64,11 @@ func (j *JobService) Start() error {
 	if err != nil {
 		return j.failJob(err)
 	}
-	
+
 	return nil
 }
 
-func (j *JobService) performUpload() error {	
+func (j *JobService) performUpload() error {
 	videoUpload := NewVideoUpload()
 	videoUpload.OutputBucket = os.Getenv("OUTPUT_BUCKET_NAME")
 	videoUpload.VideoPath = os.Getenv("LOCAL_STORAGE_PATH") + "/" + j.VideoService.Video.Id
@@ -77,9 +77,9 @@ func (j *JobService) performUpload() error {
 	go videoUpload.ProcessUpload(concurrency, doneUpload)
 
 	var uploadResult string
-	uploadResult = <- doneUpload
+	uploadResult = <-doneUpload
 
-	if uploadResult != "upload completed" {
+	if uploadResult != domain.COMPLETED.String() {
 		return j.failJob(errors.New(uploadResult))
 	}
 	return nil

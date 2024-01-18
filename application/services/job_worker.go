@@ -74,7 +74,7 @@ func JobWorker(messageChannel chan amqp.Delivery, returnChan chan JobWorkerResul
 		job.Video = jobService.VideoService.Video
 		job.OutputBucketPath = os.Getenv("OUTPUT_BUCKET_NAME")
 		job.Id = uuid.NewV4().String()
-		job.Status = "STARTING"
+		job.Status = domain.STARTING.String()
 		job.CreatedAt = time.Now()
 
 		Mutex.Lock()

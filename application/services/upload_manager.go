@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoder/domain"
 	"log"
 	"os"
 	"path/filepath"
@@ -8,10 +9,10 @@ import (
 )
 
 type VideoUpload struct {
-	Paths []string
-	VideoPath string
-	OutputBucket string  // it should be an abstraction (repository), not a bucket name
-	Errors []string
+	Paths        []string
+	VideoPath    string
+	OutputBucket string // it should be an abstraction (repository), not a bucket name
+	Errors       []string
 }
 
 func NewVideoUpload() *VideoUpload {
@@ -38,13 +39,13 @@ func (vu *VideoUpload) LoadPaths() error {
 	if err != nil {
 		return err
 	}
-	return nil	
+	return nil
 }
 
 func getClientUpload() error {
-// the original function returns an storage_client, a context and an error
-// it is used to avoid creating a new storage client every time a upload must be performed
-// a possible solution to my future repository is implementing a singleton pattern
+	// the original function returns an storage_client, a context and an error
+	// it is used to avoid creating a new storage client every time a upload must be performed
+	// a possible solution to my future repository is implementing a singleton pattern
 	return nil
 }
 
@@ -69,7 +70,7 @@ func (vu *VideoUpload) ProcessUpload(concurrency int, doneUpload chan string) er
 	}
 
 	go func() {
-		for x :=0; x < len(vu.Paths); x++ {
+		for x := 0; x < len(vu.Paths); x++ {
 			in <- x
 		}
 		close(in)
@@ -98,5 +99,5 @@ func (vu *VideoUpload) UploadWorker(in chan int, returnChan chan string) {
 		}
 		returnChan <- ""
 	}
-	returnChan <- "upload completed"
+	returnChan <- domain.COMPLETED.String()
 }

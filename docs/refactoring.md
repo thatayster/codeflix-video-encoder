@@ -14,14 +14,15 @@ This documentation was created to list those issues for further revision and adj
 #### Video service
 - [ ] Create an abstraction (cloud repository) to download the video and upload its encoded parts
 - [ ] Refactor the tests to use a fake repository rather than the real cloud repository
-- [ ] create a `resources` folder to be used by the unit tests
 - [ ] replace the object names to a more expressive one (services, functions, channels, etc.)
 - [ ] Handle error when there is no file to be processed by the upload_manager
 - [ ] Change the manager to pass the destination path to the UploadObject function. Its responsibility is only upload an object and not know about how to convert a local source file path into a "some place in the cloud" file path
 - [ ] Remove the `getClientUpload` from the service. It must be abstracted by a singleton pattern in the cloud repository
 - [ ] Create a single function that abstract all steps related to the upload process and hide the other functions from external packages
-- [ ] In the Finish function, replace the `os.Getenv` calls by a variable
 - [ ] Create an Enum of result status, so the goroutines don't have to rely on simple string values
+- [ ] Manipulate paths using built-in functions rather than simple strings
+- [x] Create a `resources` folder to be used by the unit tests
+- [x] In the Finish function, replace the `os.Getenv` calls by a variable
 
 #### Job service
 - [ ] Remove upload process from the job service. This is not its responsibility. The job service will only instanciate the cloud repository
@@ -35,6 +36,7 @@ This documentation was created to list those issues for further revision and adj
 
 - [ ] Find a standard way to comment on the `queue.go` givind the credits to the author (wesley willians)
 - [ ] Create an abstraction layer for how the microservice is integrated with the external services. It cannot refer the RabbitMQ directy
+- [ ] Hide database secrets: remove them from the `.env` file
 
 #### RabbitMQ
 

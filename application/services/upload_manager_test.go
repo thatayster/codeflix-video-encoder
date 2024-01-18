@@ -2,6 +2,7 @@ package services_test
 
 import (
 	"encoder/application/services"
+	"encoder/domain"
 	"log"
 	"testing"
 
@@ -21,7 +22,7 @@ func TestVideoServiceUpload(t *testing.T) {
 	encoded_video_path := "../../resources/encoded_files"
 
 	videoUpload := services.NewVideoUpload()
-	videoUpload.OutputBucket = "bucket-name"  // it must be removed from here to the cloud repository
+	videoUpload.OutputBucket = "bucket-name" // it must be removed from here to the cloud repository
 	videoUpload.VideoPath = encoded_video_path
 
 	doneUpload := make(chan string)
@@ -29,5 +30,5 @@ func TestVideoServiceUpload(t *testing.T) {
 
 	result := <-doneUpload
 	require.Empty(t, videoUpload.Errors)
-	require.Equal(t, result, "upload completed")
+	require.Equal(t, result, domain.COMPLETED.String())
 }
