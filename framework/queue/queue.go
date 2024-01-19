@@ -1,5 +1,9 @@
 package queue
 
+// This package was gently provided by Wesley Willians in the contet of the Full Cycle course
+// The original file can be found here: 
+// https://github.com/codeedu/microsservico-encoder/blob/master/framework/queue/queue.go
+
 import (
 	"github.com/streadway/amqp"
 	"log"

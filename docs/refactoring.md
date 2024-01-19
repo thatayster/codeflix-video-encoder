@@ -21,8 +21,7 @@ This documentation was created to list those issues for further revision and adj
 - [ ] Create a single function that abstract all steps related to the upload process and hide the other functions from external packages
 - [ ] Create an Enum of result status, so the goroutines don't have to rely on simple string values
 - [ ] Manipulate paths using built-in functions rather than simple strings
-- [x] Create a `resources` folder to be used by the unit tests
-- [x] In the Finish function, replace the `os.Getenv` calls by a variable
+
 
 #### Job service
 - [ ] Remove upload process from the job service. This is not its responsibility. The job service will only instanciate the cloud repository
@@ -34,10 +33,15 @@ This documentation was created to list those issues for further revision and adj
 
 ### Infrastructure
 
-- [ ] Find a standard way to comment on the `queue.go` givind the credits to the author (wesley willians)
 - [ ] Create an abstraction layer for how the microservice is integrated with the external services. It cannot refer the RabbitMQ directy
 - [ ] Hide database secrets: remove them from the `.env` file
 
 #### RabbitMQ
 
 - [ ] Defining a way to create the necessary infrastructure for the RabbitMQ. Namely, the `dlx` exchange to receive the dead-letter queue and the `videos-result` (binded with the `amq.direct` exchange and route key `jobs`), `videos-failed` (binded with the `dlx` exchange)
+
+## Done
+
+- [x] Create a `resources` folder to be used by the unit tests
+- [x] In the Finish function, replace the `os.Getenv` calls by a variable
+- [x] Find a standard way to comment on the `queue.go` giving the credits to the author (wesley willians)
