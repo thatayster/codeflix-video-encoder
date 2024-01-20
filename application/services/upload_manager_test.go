@@ -28,7 +28,7 @@ func TestVideoServiceUpload(t *testing.T) {
 	doneUpload := make(chan string)
 	go videoUpload.ProcessUpload(20, doneUpload)
 
-	result := <-doneUpload
+	result := <- doneUpload
 	require.Empty(t, videoUpload.Errors)
-	require.Equal(t, result, domain.COMPLETED.String())
+	require.Equal(t, result, domain.COMPLETED.ToString())
 }

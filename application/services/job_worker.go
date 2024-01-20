@@ -5,27 +5,25 @@ import (
 	"encoder/framework/utils"
 	"encoding/json"
 	"log"
-	"os"
 	"sync"
-	"time"
 
 	uuid "github.com/satori/go.uuid"
 	"github.com/streadway/amqp"
 )
 
 type JobWorkerResult struct {
-	Job domain.Job
+	Job     domain.Job
 	Message amqp.Delivery
-	Error error
+	Error   error
 }
 
 var Mutex = &sync.Mutex{}
 
 func returnJobResult(job domain.Job, message amqp.Delivery, err error) JobWorkerResult {
 	result := JobWorkerResult{
-		Job: job,
+		Job:     job,
 		Message: message,
-		Error: err,
+		Error:   err,
 	}
 	return result
 }
@@ -72,15 +70,14 @@ func JobWorker(messageChannel chan amqp.Delivery, returnChan chan JobWorkerResul
 		log.Println("Video successfully stored in the database.")
 
 		job.Video = jobService.VideoService.Video
-		job.OutputBucketPath = os.Getenv("OUTPUT_BUCKET_NAME")
+		//job.OutputBucketPath = os.Getenv("OUTPUT_BUCKET_NAME")
 		job.Id = uuid.NewV4().String()
-		job.Status = domain.STARTING.String()
-		job.CreatedAt = time.Now()
+		job.Status = domain.STARTING
 
 		Mutex.Lock()
 		_, err = jobService.JobRepository.Insert(&job)
 		Mutex.Unlock()
-		
+
 		if err != nil {
 			returnChan <- returnJobResult(domain.Job{}, message, err)
 			continue
@@ -95,5 +92,5 @@ func JobWorker(messageChannel chan amqp.Delivery, returnChan chan JobWorkerResul
 			continue
 		}
 		returnChan <- returnJobResult(job, message, nil)
-	}	
+	}
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/jinzhu/gorm"
-	uuid "github.com/satori/go.uuid"
 )
 
 type JobRepository interface {
@@ -23,11 +22,12 @@ func NewJobRepositoryDB(db *gorm.DB) *JobRepositoryDB {
 }
 
 func (repo JobRepositoryDB) Insert(job *domain.Job) (*domain.Job, error) {
-	if job.Id == "" {
-		job.Id = uuid.NewV4().String()
+	jobOrm, err := ToJobORM(job)
+	if err != nil {
+		return nil, err
 	}
 
-	err := repo.Db.Create(job).Error
+	err = repo.Db.Create(jobOrm).Error
 	if err != nil {
 		return nil, err
 	}
@@ -35,18 +35,26 @@ func (repo JobRepositoryDB) Insert(job *domain.Job) (*domain.Job, error) {
 }
 
 func (repo JobRepositoryDB) Find(id string) (*domain.Job, error) {
-	var job domain.Job
-	repo.Db.Preload("Video").First(&job, "id = ?", id)
+	var jobOrm Job
+	repo.Db.Preload("Video").First(&jobOrm, "id = ?", id)
 
-	if job.Id == "" {
+	if jobOrm.ID == "" {
 		return nil, fmt.Errorf("video does not exist")
 	}
-	return &job, nil
+
+	jobDomain, err := jobOrm.ToJobDomain()
+	if err != nil {
+		return nil, err
+	}
+	return jobDomain, nil
 }
 
 func (repo JobRepositoryDB) Update(job *domain.Job) (*domain.Job, error) {
-	err := repo.Db.Save(&job).Error
-
+	jobOrm, err := ToJobORM(job)
+	if err != nil {
+		return nil, err
+	}
+	err = repo.Db.Save(&jobOrm).Error
 	if err != nil {
 		return nil, err
 	}

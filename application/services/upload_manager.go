@@ -11,7 +11,7 @@ import (
 type VideoUpload struct {
 	Paths        []string
 	VideoPath    string
-	OutputBucket string // it should be an abstraction (repository), not a bucket name
+	OutputBucket string      // it should be an abstraction (repository), not a bucket name
 	Errors       []string
 }
 
@@ -77,7 +77,7 @@ func (vu *VideoUpload) ProcessUpload(concurrency int, doneUpload chan string) er
 	}()
 
 	for r := range returnChannel {
-		if r != "" {
+		if r != domain.SUCCEEDED.ToString() {
 			doneUpload <- r
 			break
 		}
@@ -97,7 +97,7 @@ func (vu *VideoUpload) UploadWorker(in chan int, returnChan chan string) {
 			log.Printf("error during the upload: %v. Error: %v", vu.Paths[x], err)
 			returnChan <- err.Error()
 		}
-		returnChan <- ""
+		returnChan <- domain.SUCCEEDED.ToString()
 	}
-	returnChan <- domain.COMPLETED.String()
+	returnChan <- domain.COMPLETED.ToString()
 }

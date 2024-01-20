@@ -6,7 +6,6 @@ This documentation was created to list those issues for further revision and adj
 ## Backlog
 
 ### Repositories
-- [ ] Remove database configuration from entity definition on `Video` and `Job`
 - [ ] Fix ORM error when handling with column referencing objects. Ex.: Object `Job` has a attribute `Video` that is returned by the ORM (Maybe it is a `sqlite3.orm` limitation)
 
 ### Services
@@ -19,7 +18,6 @@ This documentation was created to list those issues for further revision and adj
 - [ ] Change the manager to pass the destination path to the UploadObject function. Its responsibility is only upload an object and not know about how to convert a local source file path into a "some place in the cloud" file path
 - [ ] Remove the `getClientUpload` from the service. It must be abstracted by a singleton pattern in the cloud repository
 - [ ] Create a single function that abstract all steps related to the upload process and hide the other functions from external packages
-- [ ] Create an Enum of result status, so the goroutines don't have to rely on simple string values
 - [ ] Manipulate paths using built-in functions rather than simple strings
 
 
@@ -45,3 +43,5 @@ This documentation was created to list those issues for further revision and adj
 - [x] Create a `resources` folder to be used by the unit tests
 - [x] In the Finish function, replace the `os.Getenv` calls by a variable
 - [x] Find a standard way to comment on the `queue.go` giving the credits to the author (wesley willians)
+- [x] Remove database configuration from entity definition on `Video` and `Job`
+- [x] Create an Enum of result status, so the goroutines don't have to rely on simple string values

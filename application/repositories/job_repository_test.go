@@ -5,9 +5,7 @@ import (
 	"encoder/domain"
 	"encoder/framework/database"
 	"testing"
-	"time"
 
-	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -15,57 +13,57 @@ func TestJobRepositoryInsert(t *testing.T) {
 	db := database.NewDbTest()
 	defer db.Close()
 
-	video := domain.NewVideo()
-	video.Id = uuid.NewV4().String()
-	video.FilePath = "path"
-	video.CreatedAt = time.Now()
-
-	repo := repositories.VideoRepositoryDB{Db:db}
-	repo.Insert(video)
-
-	job, err := domain.NewJob("output_path", "Pending", video)
-	require.Nil(t, err)
-
+	video, job := generateDomainResources()
+	repoVideo := repositories.VideoRepositoryDB{Db:db}
 	repoJob := repositories.JobRepositoryDB{Db:db}
-	repoJob.Insert(job)
 
-	j, err := repoJob.Find(job.Id)
-	require.NotEmpty(t, j.Id)
-	require.Nil(t, err)
-	require.Equal(t, job.Id, j.Id)
-	require.Equal(t, j.VideoId, video.Id)
-
-	foundVideo, err := repo.Find(j.VideoId)
+	// 'Insert' for Video Repository is tested in another file
+	repoVideo.Insert(video)
+	_, err := repoJob.Insert(job)
 
 	require.Nil(t, err)
-	require.Equal(t, video.Id, foundVideo.Id)
-	require.NotEmpty(t, foundVideo.Jobs)
+
+	foundJob, err := repoJob.Find(job.Id)
+
+	require.Nil(t, err)
+	require.Equal(t, job.Id, foundJob.Id)
+	require.Equal(t, job.Status, foundJob.Status)
+	require.EqualValues(t, job.Video, foundJob.Video)
 }
 
 func TestJobRepositoryUpdate(t *testing.T) {
 	db := database.NewDbTest()
 	defer db.Close()
 
-	video := domain.NewVideo()
-	video.Id = uuid.NewV4().String()
-	video.FilePath = "path"
-	video.CreatedAt = time.Now()
+	video, job := generateDomainResources()
 
 	repo := repositories.VideoRepositoryDB{Db:db}
-	repo.Insert(video)
-
-	job, err := domain.NewJob("output_path", "Pending", video)
-	require.Nil(t, err)
-
 	repoJob := repositories.JobRepositoryDB{Db:db}
-	repoJob.Insert(job)
 
-	job.Status = "Completed"
+	repo.Insert(video)	
+	_, err := repoJob.Insert(job)
 
-	repoJob.Update(job)
-
-	j, err := repoJob.Find(job.Id)
-	require.NotEmpty(t, j.Id)
 	require.Nil(t, err)
-	require.Equal(t, j.Status, job.Status)
+
+	job.Status = domain.COMPLETED
+
+	_, err = repoJob.Update(job)
+
+	require.Nil(t, err)
+
+	foundJob, err := repoJob.Find(job.Id)
+
+	require.Nil(t, err)
+	require.Equal(t, job.Status, foundJob.Status)
+}
+
+func TestJobNotFound(t *testing.T) {
+	db := database.NewDbTest()
+	defer db.Close()
+
+	repo := repositories.JobRepositoryDB{Db:db}
+
+	_, err := repo.Find("non-existent-id")
+
+	require.Error(t, err)
 }

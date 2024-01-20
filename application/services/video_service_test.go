@@ -8,10 +8,8 @@ import (
 	"log"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/joho/godotenv"
-	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -26,12 +24,7 @@ func prepare() (*domain.Video, repositories.VideoRepositoryDB) {
 	db := database.NewDbTest()
 	defer db.Close()
 
-	video := domain.NewVideo()
-	video.Id = uuid.NewV4().String()
-	//video.FilePath = "tbs_tests/input/data/test/test.mp4"
-	video.FilePath = "test.mp4"
-	video.CreatedAt = time.Now()
-
+	video, _ := domain.NewVideo("", "resource-id", "test.mp4")
 	repo := repositories.VideoRepositoryDB{Db:db}
 	return video, repo
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/jinzhu/gorm"
-	uuid "github.com/satori/go.uuid"
 )
 
 type VideoRepository interface {
@@ -22,11 +21,11 @@ func NewVideoRepositoryDB(db *gorm.DB) *VideoRepositoryDB {
 }
 
 func (repo VideoRepositoryDB) Insert(video *domain.Video) (*domain.Video, error) {
-	if video.Id == "" {
-		video.Id = uuid.NewV4().String()
+	videoOrm, err := ToVideoORM(video)
+	if err != nil {
+		return nil, err
 	}
-
-	err := repo.Db.Create(video).Error
+	err = repo.Db.Create(videoOrm).Error
 	if err != nil {
 		return nil, err
 	}
@@ -34,11 +33,16 @@ func (repo VideoRepositoryDB) Insert(video *domain.Video) (*domain.Video, error)
 }
 
 func (repo VideoRepositoryDB) Find(id string) (*domain.Video, error) {
-	var video domain.Video
-	repo.Db.Preload("Jobs").First(&video, "id = ?", id)
+	var videoOrm Video
+	repo.Db.Preload("Jobs").First(&videoOrm, "id = ?", id)
 
-	if video.Id == "" {
+	if videoOrm.ID == "" {
 		return nil, fmt.Errorf("video does not exist")
 	}
-	return &video, nil
+
+	videoDomain, err := videoOrm.ToVideoDomain()
+	if err != nil {
+		return nil, err
+	}
+	return videoDomain, nil
 }

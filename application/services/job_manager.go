@@ -5,6 +5,7 @@ import (
 	"encoder/domain"
 	"encoder/framework/queue"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -14,25 +15,25 @@ import (
 )
 
 type JobManager struct {
-	Db *gorm.DB
-	Domain domain.Job
-	MessageChannel chan amqp.Delivery
+	Db               *gorm.DB
+	Domain           domain.Job
+	MessageChannel   chan amqp.Delivery
 	JobReturnChannel chan JobWorkerResult
-	RabbitMQ *queue.RabbitMQ
+	RabbitMQ         *queue.RabbitMQ
 }
 
 type JobNotificationError struct {
 	Message string `json:"message"`
-	Error string `json:"error"`
+	Error   string `json:"error"`
 }
 
 func NewJobManager(db *gorm.DB, rabbitMQ *queue.RabbitMQ, jobWorkerResult chan JobWorkerResult, messageChannel chan amqp.Delivery) *JobManager {
 	return &JobManager{
-		Db: db,
-		Domain: domain.Job{},
-		MessageChannel: messageChannel,
+		Db:               db,
+		Domain:           domain.Job{},
+		MessageChannel:   messageChannel,
 		JobReturnChannel: jobWorkerResult,
-		RabbitMQ: rabbitMQ,
+		RabbitMQ:         rabbitMQ,
 	}
 }
 
@@ -42,7 +43,7 @@ func (j *JobManager) Start(ch *amqp.Channel) {
 
 	jobService := JobService{
 		JobRepository: repositories.JobRepositoryDB{Db: j.Db},
-		VideoService: videoService,
+		VideoService:  videoService,
 	}
 
 	concurrency, err := strconv.Atoi(os.Getenv("CONCURRENCY_WORKERS"))
@@ -51,7 +52,7 @@ func (j *JobManager) Start(ch *amqp.Channel) {
 	}
 
 	for qtdProccesses := 0; qtdProccesses < concurrency; qtdProccesses++ {
-		log.Println("Starting Job worker ", string(qtdProccesses))
+		log.Println("Starting Job worker ", fmt.Sprint(qtdProccesses))
 		go JobWorker(j.MessageChannel, j.JobReturnChannel, jobService, j.Domain, qtdProccesses)
 	}
 
@@ -94,14 +95,14 @@ func (j *JobManager) checkParseErrors(jobResult JobWorkerResult) error {
 		)
 	} else {
 		log.Printf(
-			"MessageID: %v. Error parsing message: %v", 
+			"MessageID: %v. Error parsing message: %v",
 			jobResult.Message.DeliveryTag, jobResult.Error.Error(),
 		)
 	}
 
-	errorMessage  := JobNotificationError{
+	errorMessage := JobNotificationError{
 		Message: string(jobResult.Message.Body),
-		Error: jobResult.Error.Error(),
+		Error:   jobResult.Error.Error(),
 	}
 
 	jobJson, err := json.Marshal(errorMessage)
