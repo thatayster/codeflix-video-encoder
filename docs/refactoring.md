@@ -6,7 +6,6 @@ This documentation was created to list those issues for further revision and adj
 ## Backlog
 
 ### Repositories
-- [ ] Remove database configuration from entity definition on `Video` and `Job`
 - [ ] Fix ORM error when handling with column referencing objects. Ex.: Object `Job` has a attribute `Video` that is returned by the ORM (Maybe it is a `sqlite3.orm` limitation)
 
 ### Services
@@ -45,3 +44,4 @@ This documentation was created to list those issues for further revision and adj
 - [x] Create a `resources` folder to be used by the unit tests
 - [x] In the Finish function, replace the `os.Getenv` calls by a variable
 - [x] Find a standard way to comment on the `queue.go` giving the credits to the author (wesley willians)
+- [x] Remove database configuration from entity definition on `Video` and `Job`

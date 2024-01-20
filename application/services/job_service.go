@@ -15,7 +15,7 @@ type JobService struct {
 }
 
 func (j *JobService) Start() error {
-	err := j.changeJobStatus("DOWNLOADING")
+	err := j.changeJobStatus(domain.DOWNLOADING)
 	if err != nil {
 		return j.failJob(err)
 	}
@@ -24,7 +24,7 @@ func (j *JobService) Start() error {
 		return j.failJob(err)
 	}
 
-	err = j.changeJobStatus("FRAGMENTING")
+	err = j.changeJobStatus(domain.FRAGMENTING)
 	if err != nil {
 		return j.failJob(err)
 	}
@@ -33,7 +33,7 @@ func (j *JobService) Start() error {
 		return j.failJob(err)
 	}
 
-	err = j.changeJobStatus("ENCODING")
+	err = j.changeJobStatus(domain.ENCODING)
 	if err != nil {
 		return j.failJob(err)
 	}
@@ -42,7 +42,7 @@ func (j *JobService) Start() error {
 		return j.failJob(err)
 	}
 
-	err = j.changeJobStatus("UPLOADING")
+	err = j.changeJobStatus(domain.UPLOADING)
 	if err != nil {
 		return j.failJob(err)
 	}
@@ -51,7 +51,7 @@ func (j *JobService) Start() error {
 		return j.failJob(err)
 	}
 
-	err = j.changeJobStatus("FINISHNING")
+	err = j.changeJobStatus(domain.FINISHNING)
 	if err != nil {
 		return j.failJob(err)
 	}
@@ -60,7 +60,7 @@ func (j *JobService) Start() error {
 		return j.failJob(err)
 	}
 
-	err = j.changeJobStatus("COMPLETED")
+	err = j.changeJobStatus(domain.COMPLETED)
 	if err != nil {
 		return j.failJob(err)
 	}
@@ -76,16 +76,15 @@ func (j *JobService) performUpload() error {
 	doneUpload := make(chan string)
 	go videoUpload.ProcessUpload(concurrency, doneUpload)
 
-	var uploadResult string
-	uploadResult = <-doneUpload
+	var uploadResult string = <-doneUpload
 
-	if uploadResult != domain.COMPLETED.String() {
+	if uploadResult != domain.COMPLETED.ToString() {
 		return j.failJob(errors.New(uploadResult))
 	}
 	return nil
 }
 
-func (j *JobService) changeJobStatus(status string) error {
+func (j *JobService) changeJobStatus(status domain.OperationStatus) error {
 	var err error
 
 	j.Job.Status = status

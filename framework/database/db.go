@@ -1,8 +1,9 @@
 package database
 
 import (
-	"encoder/domain"
+	"encoder/application/repositories"
 	"log"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	_ "github.com/lib/pq"
@@ -29,7 +30,7 @@ func NewDbTest() *gorm.DB {
 	dbInstance.DbTypeTest = "sqlite3"
 	dbInstance.DsnTest = ":memory:"
 	dbInstance.AutoMigrateDb = true
-	dbInstance.Debug = true
+	dbInstance.Debug = false
 
 	connection, err := dbInstance.Connect()
 
@@ -57,9 +58,9 @@ func (d *Database) Connect() (*gorm.DB, error) {
 	}
 
 	if d.AutoMigrateDb {
-		d.Db.AutoMigrate(&domain.Video{}, &domain.Job{},)
+		d.Db.AutoMigrate(&repositories.Video{}, &repositories.Job{},)
 		//d.Db.Raw("PRAGMA foreign_keys=ON")
-		d.Db.Model(domain.Job{}).AddForeignKey("video_id", "videos (id)", "CASCADE", "CASCADE")
+		d.Db.Model(repositories.Job{}).AddForeignKey("video_id", "videos (id)", "CASCADE", "CASCADE")
 	}
 	return d.Db, nil
 }

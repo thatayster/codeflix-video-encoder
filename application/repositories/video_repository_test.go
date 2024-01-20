@@ -1,31 +1,37 @@
 package repositories_test
 
 import (
-	"encoder/application/repositories"
-	"encoder/domain"
-	"encoder/framework/database"
-	"testing"
-	"time"
+ 	"encoder/application/repositories"
+ 	"encoder/framework/database"
+ 	"testing"
 
-	uuid "github.com/satori/go.uuid"
-	"github.com/stretchr/testify/require"
+ 	"github.com/stretchr/testify/require"
 )
 
 func TestVideoRepositoryDbInsert(t *testing.T) {
 	db := database.NewDbTest()
 	defer db.Close()
 
-	video := domain.NewVideo()
-	video.Id = uuid.NewV4().String()
-	video.FilePath = "path"
-	video.CreatedAt = time.Now()
+	video, _ := generateDomainResources()
 
 	repo := repositories.VideoRepositoryDB{Db:db}
-	repo.Insert(video)
+	_, err := repo.Insert(video)
 
-	v, err := repo.Find(video.Id)
-
-	require.NotEmpty(t, v.Id)
 	require.Nil(t, err)
-	require.Equal(t, v.Id, video.Id)
+
+	foundVideo, err := repo.Find(video.Id)
+
+	require.Nil(t, err)
+	require.NotEmpty(t, foundVideo.Id)
+	require.Equal(t, foundVideo.Id, video.Id)
+}
+
+func TestVideoNotFound(t *testing.T) {
+	db := database.NewDbTest()
+	defer db.Close()
+
+	repo := repositories.VideoRepositoryDB{ Db:db }
+	_, err := repo.Find("non-existent-id")
+
+	require.Error(t, err)
 }
