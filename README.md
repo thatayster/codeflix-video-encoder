@@ -4,7 +4,7 @@
 
 1. Run `make up` command to run the containers
 2. Run `make execute` command to enter in the app container (if you want to visualize the output)
-3. Prepare the infrastructure for RabbitMQ:
+3. Prepare the infrastructure for RabbitMQ on `http://localhost:15672/`:
    1. Create the exchange `dlx` of type `fanout`
    2. Create the dead-letter queue (`videos-failed`) binded with `dlx` 
    3. Create the `videos-result` queue binded with `amq.direct` and routing key `jobs` 
