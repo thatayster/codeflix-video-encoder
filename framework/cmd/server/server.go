@@ -19,17 +19,17 @@ func init() {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("error loading .env file")
+		log.Fatalf("Error loading .env file")
 	}
 
 	autoMigrateDb, err := strconv.ParseBool(os.Getenv("AUTO_MIGRATE_DB")) 
 	if err != nil {
-		log.Fatalf("error parsing boolean env variable: AUTO_MIGRATE_DB")
+		log.Fatalf("Error parsing boolean env variable: AUTO_MIGRATE_DB")
 	}
 
 	debug, err := strconv.ParseBool(os.Getenv("DEBUG")) 
 	if err != nil {
-		log.Fatalf("error parsing boolean env variable: DEBUG")
+		log.Fatalf("Error parsing boolean env variable: DEBUG")
 	}
 
 	log.Println("Setting up database...")
@@ -51,7 +51,7 @@ func main() {
 	dbConnection, err := db.Connect()
 
 	if err != nil {
-		log.Fatalf("error connecting to DB")
+		log.Fatalf("Error connecting to DB")
 	}
 	defer dbConnection.Close()
 
