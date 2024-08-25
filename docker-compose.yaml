@@ -1,4 +1,3 @@
-version: "3"
 services:
   app:
     build: .
@@ -26,3 +25,7 @@ services:
     ports:
       - "15672:15672"
       - "5672:5672"
+    volumes:
+      - type: bind
+        source: ./framework/queue/setup.sh
+        target: /usr/src/setup.sh

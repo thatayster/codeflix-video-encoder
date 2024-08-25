@@ -4,10 +4,13 @@ test:
 	go test ./...
 
 up:
-	docker-compose up --build -d
+	docker compose up --build -d
 
 down:
-	docker-compose down
+	docker compose down
 
-execute:
-	docker-compose exec app bash
+execute_app:
+	docker compose exec app bash
+
+execute_rabbit:
+	docker compose exec rabbit bash
